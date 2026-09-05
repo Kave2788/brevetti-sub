@@ -1,0 +1,718 @@
+:root {
+  --bg: #000000;
+  --surface: #1c1c1e;
+  --surface-2: #2c2c2e;
+  --separator: rgba(255, 255, 255, 0.12);
+  --text: #ffffff;
+  --text-dim: rgba(235, 235, 245, 0.6);
+  --text-faint: rgba(235, 235, 245, 0.35);
+  --accent: #0a84ff;
+  --danger: #ff453a;
+  --warning: #ff9f0a;
+  --success: #32d74b;
+
+  --card-radius: 20px;
+  /* altezza della striscia visibile di ogni tessera impilata: deve
+     contenere agenzia, badge di scadenza e titolo */
+  --peek: 96px;
+
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+
+  color-scheme: dark;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI',
+    Roboto, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  overscroll-behavior-y: none;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  border: none;
+  background: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+.mono {
+  font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ------------------------------------------------------------- layout */
+
+.app {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding-top: var(--safe-top);
+}
+
+.screen {
+  flex: 1;
+  padding: 0 16px calc(32px + var(--safe-bottom));
+  max-width: 520px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 0 18px;
+  min-height: 44px;
+}
+
+.topbar h1 {
+  font-size: 30px;
+  line-height: 1.1;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+.icon-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--surface-2);
+  display: grid;
+  place-items: center;
+  font-size: 19px;
+  line-height: 1;
+  flex: none;
+  transition: transform 0.15s, background 0.15s;
+}
+
+.icon-btn:active {
+  transform: scale(0.9);
+  background: #3a3a3c;
+}
+
+.text-btn {
+  color: var(--accent);
+  font-size: 17px;
+  padding: 6px 2px;
+}
+
+.text-btn.danger {
+  color: var(--danger);
+}
+
+/* -------------------------------------------------------- wallet stack */
+
+/* Ogni tessera interamente visibile, spaziatura regolare: le foto hanno
+   altezze diverse e sovrapporle nascondeva proprio il livello del
+   brevetto, che sta in mezzo alla tessera. */
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding-bottom: 16px;
+}
+
+.stack-item {
+  position: relative;
+  cursor: pointer;
+  transition: transform 0.18s ease;
+}
+
+.stack-item:active {
+  transform: scale(0.985);
+}
+
+/* -------------------------------------------------------------- card */
+
+.pass {
+  position: relative;
+  border-radius: var(--card-radius);
+  aspect-ratio: 1.586 / 1;
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+  color: #fff;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.5), 0 8px 24px rgba(0, 0, 0, 0.55),
+    inset 0 0 0 0.5px rgba(255, 255, 255, 0.14);
+  isolation: isolate;
+}
+
+/* la foto del documento come faccia della tessera, per intero */
+.pass-photo {
+  display: block;
+  width: 100%;
+  height: auto;
+  z-index: 0;
+}
+
+/* con la foto, la tessera prende le proporzioni del documento vero
+   invece del formato carta di credito: nessun ritaglio */
+.pass.has-photo {
+  aspect-ratio: auto;
+  padding: 0;
+}
+
+/* velo scuro sopra la foto: senza, il testo bianco sparisce sui documenti
+   chiari. Piu' denso agli estremi, dove stanno intestazione e piede. */
+/* senza scritte sopra, il velo non serve: la foto si vede com'e' */
+.pass.bare::before,
+.pass.bare::after {
+  display: none;
+}
+
+.pass.has-photo::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0.74) 0%,
+    rgba(0, 0, 0, 0.34) 34%,
+    rgba(0, 0, 0, 0.34) 58%,
+    rgba(0, 0, 0, 0.82) 100%
+  );
+}
+
+.pass-head,
+.pass-foot {
+  position: relative;
+  z-index: 2;
+}
+
+/* sulle tessere con foto le scritte stanno sopra l'immagine, non in colonna */
+.pass.has-photo .pass-head,
+.pass.has-photo .pass-foot {
+  position: absolute;
+  left: 0;
+  right: 0;
+  padding: 16px 18px;
+}
+
+.pass.has-photo .pass-head {
+  top: 0;
+}
+
+.pass.has-photo .pass-foot {
+  bottom: 0;
+}
+
+/* riflesso diagonale, come sulle tessere plastificate */
+.pass::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    108deg,
+    rgba(255, 255, 255, 0.16) 0%,
+    rgba(255, 255, 255, 0.04) 34%,
+    rgba(255, 255, 255, 0) 52%
+  );
+  pointer-events: none;
+}
+
+.pass-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.pass-agency {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+}
+
+.pass-kind {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.16);
+  white-space: nowrap;
+}
+
+.pass-title {
+  font-size: 21px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.15;
+  margin: 9px 0 0;
+  overflow-wrap: anywhere;
+  /* nello stack resta visibile solo l'intestazione: due righe al massimo */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.pass-foot {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.pass-label {
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  opacity: 0.65;
+  margin-bottom: 2px;
+}
+
+.pass-value {
+  font-size: 13px;
+  font-weight: 500;
+}
+
+/* ------------------------------------------------------------ badges */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 9px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.badge.warn {
+  background: var(--warning);
+  color: #000;
+}
+
+.badge.expired {
+  background: var(--danger);
+  color: #fff;
+}
+
+/* ------------------------------------------------------------ detail */
+
+/* il documento aperto: piena larghezza, proporzioni sue, niente ritaglio */
+.doc-photo {
+  display: block;
+  width: 100%;
+  padding: 0;
+  margin-bottom: 12px;
+  border-radius: var(--card-radius);
+  overflow: hidden;
+  background: var(--surface);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.55),
+    inset 0 0 0 0.5px rgba(255, 255, 255, 0.14);
+}
+
+.doc-photo img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.detail-fields {
+  margin-top: 22px;
+  background: var(--surface);
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.field-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 13px 16px;
+}
+
+.field-row + .field-row {
+  border-top: 0.5px solid var(--separator);
+}
+
+.field-label {
+  color: var(--text-dim);
+  font-size: 15px;
+  flex: none;
+}
+
+.field-value {
+  font-size: 15px;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+.section-title {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-dim);
+  margin: 26px 0 8px 4px;
+}
+
+.photo-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.photo-thumb {
+  aspect-ratio: 1.586 / 1;
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--surface);
+  border: 0.5px solid var(--separator);
+}
+
+.photo-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.topbar-hint {
+  color: var(--text-faint);
+  font-size: 12px;
+}
+
+.detail-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.pill-btn {
+  flex: 1;
+  padding: 13px;
+  border-radius: 14px;
+  background: var(--surface-2);
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.pill-btn:active {
+  filter: brightness(0.85);
+}
+
+.pill-btn.danger {
+  color: var(--danger);
+}
+
+.big-action {
+  width: 100%;
+  margin-top: 22px;
+  padding: 15px;
+  border-radius: 14px;
+  background: var(--danger);
+  color: #fff;
+  font-size: 17px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-decoration: none;
+}
+
+.big-action:active {
+  filter: brightness(0.85);
+}
+
+.big-action.neutral {
+  background: var(--surface-2);
+}
+
+/* -------------------------------------------------------------- form */
+
+.form-group {
+  background: var(--surface);
+  border-radius: 14px;
+  overflow: hidden;
+  margin-bottom: 18px;
+}
+
+.form-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 16px;
+  min-height: 48px;
+}
+
+.form-row + .form-row {
+  border-top: 0.5px solid var(--separator);
+}
+
+.form-row label {
+  width: 116px;
+  flex: none;
+  color: var(--text-dim);
+  font-size: 15px;
+}
+
+.form-row input,
+.form-row select,
+.form-row textarea {
+  flex: 1;
+  min-width: 0;
+  background: transparent;
+  border: none;
+  color: var(--text);
+  font-size: 16px; /* 16px evita lo zoom automatico su iOS */
+  outline: none;
+  padding: 4px 0;
+}
+
+.form-row textarea {
+  resize: vertical;
+  min-height: 60px;
+}
+
+.form-row select {
+  appearance: none;
+}
+
+.form-hint {
+  color: var(--text-dim);
+  font-size: 13px;
+  line-height: 1.45;
+  margin: 0 4px 14px;
+}
+
+.photo-picker {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.photo-slot {
+  aspect-ratio: 1.586 / 1;
+  border-radius: 12px;
+  border: 1.5px dashed var(--separator);
+  background: var(--surface);
+  display: grid;
+  place-items: center;
+  text-align: center;
+  color: var(--text-dim);
+  font-size: 13px;
+  gap: 4px;
+  overflow: hidden;
+  position: relative;
+}
+
+.photo-slot img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.photo-slot .remove {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  font-size: 15px;
+}
+
+.disclosure {
+  width: 100%;
+  padding: 13px;
+  margin-bottom: 18px;
+  border-radius: 14px;
+  background: var(--surface);
+  color: var(--text-dim);
+  font-size: 15px;
+}
+
+.submit-btn {
+  width: 100%;
+  padding: 15px;
+  border-radius: 14px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.submit-btn:disabled {
+  opacity: 0.4;
+}
+
+/* ------------------------------------------------------------- empty */
+
+.empty {
+  text-align: center;
+  padding: 56px 20px;
+  color: var(--text-dim);
+}
+
+.empty h2 {
+  color: var(--text);
+  font-size: 20px;
+  margin: 16px 0 8px;
+}
+
+.empty p {
+  font-size: 15px;
+  line-height: 1.45;
+  margin: 0 auto 22px;
+  max-width: 300px;
+}
+
+.empty-glyph {
+  font-size: 46px;
+}
+
+/* ------------------------------------------------------------ sheets */
+
+.sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(3px);
+  z-index: 40;
+}
+
+.sheet {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 41;
+  background: var(--surface);
+  border-radius: 20px 20px 0 0;
+  padding: 10px 16px calc(20px + var(--safe-bottom));
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+.sheet-grabber {
+  width: 36px;
+  height: 5px;
+  border-radius: 3px;
+  background: var(--text-faint);
+  margin: 0 auto 14px;
+}
+
+.sheet-option {
+  width: 100%;
+  text-align: left;
+  padding: 15px 8px;
+  font-size: 17px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sheet-option + .sheet-option {
+  border-top: 0.5px solid var(--separator);
+}
+
+/* tessera a tutto schermo: la foto occupa tutto, lo zoom a due dita e'
+   quello nativo del browser */
+.viewer {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background: #000;
+  display: flex;
+  flex-direction: column;
+  padding-top: var(--safe-top);
+}
+
+.viewer-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 6px 16px 10px;
+  flex: none;
+}
+
+.viewer-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 16px calc(28px + var(--safe-bottom));
+  max-width: 620px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.viewer-photo {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 14px;
+  margin-bottom: 12px;
+}
+
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background: #000;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+}
+
+.lightbox img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.toast {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: calc(28px + var(--safe-bottom));
+  z-index: 70;
+  background: var(--surface-2);
+  color: var(--text);
+  padding: 11px 18px;
+  border-radius: 999px;
+  font-size: 14px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+  max-width: calc(100% - 40px);
+  text-align: center;
+}
