@@ -51,14 +51,10 @@ function PhotoSlot({ photoId, label, onPick, onRemove }: PhotoSlotProps) {
       ) : (
         <span>+ {label}</span>
       )}
-      <input
-        ref={inputRef}
-        type="file"
-        accept="image/*"
-        capture="environment"
-        hidden
-        onChange={handleChange}
-      />
+      {/* Niente attributo `capture`: su iOS forzerebbe la fotocamera,
+          mentre le foto delle tessere di solito sono gia' in galleria.
+          Cosi' il telefono lascia scegliere fra scatto, libreria e file. */}
+      <input ref={inputRef} type="file" accept="image/*" hidden onChange={handleChange} />
     </div>
   )
 }
