@@ -2,9 +2,9 @@ import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa'
 
-// Se un giorno pubblichi in una sottocartella (es. GitHub Pages), imposta
-// qui il percorso base: '/nome-repo/'.
-const BASE = '/'
+// Su GitHub Pages il sito e' servito da una sottocartella col nome del
+// repository, non dalla radice del dominio.
+const BASE = '/brevetti-sub/'
 
 // https://vite.dev/config/
 export default defineConfig({
