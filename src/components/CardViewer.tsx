@@ -2,6 +2,7 @@ import { motion } from 'motion/react'
 import { getAgency } from '../data/agencies'
 import { expiryOf, isInsurance, numberOf, titleOf, type Card } from '../types'
 import { expiryInfo, formatDate, telHref, usePhotoUrl } from '../utils'
+import { Icon } from './Icon'
 
 interface CardViewerProps {
   card: Card
@@ -43,8 +44,8 @@ export function CardViewer({ card, onClose, onEdit, onDelete }: CardViewerProps)
       transition={{ duration: 0.18 }}
     >
       <div className="viewer-bar">
-        <button className="text-btn" onClick={onClose}>
-          Chiudi
+        <button className="icon-btn" onClick={onClose} aria-label="Chiudi">
+          <Icon name="close" size={19} weight={1.9} />
         </button>
         {expiry.state === 'expired' && <span className="badge expired">Scaduta</span>}
         {expiry.state === 'soon' && <span className="badge warn">{expiry.label}</span>}
@@ -56,7 +57,8 @@ export function CardViewer({ card, onClose, onEdit, onDelete }: CardViewerProps)
 
         {isInsurance(card) && card.emergencyPhone && (
           <a className="big-action" href={telHref(card.emergencyPhone)}>
-            Chiama emergenza {agency.short}
+            <Icon name="phone" size={19} />
+            Emergenza {agency.short}
           </a>
         )}
 
@@ -84,9 +86,11 @@ export function CardViewer({ card, onClose, onEdit, onDelete }: CardViewerProps)
 
         <div className="detail-actions">
           <button className="pill-btn" onClick={onEdit}>
+            <Icon name="camera" size={18} />
             Cambia foto
           </button>
           <button className="pill-btn danger" onClick={onDelete}>
+            <Icon name="trash" size={18} />
             Elimina
           </button>
         </div>

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
 import { CARD_SPRING, PassCard } from './components/PassCard'
 import { CardViewer } from './components/CardViewer'
+import { Icon } from './components/Icon'
 import { CardForm } from './components/CardForm'
 import { Settings } from './components/Settings'
 import { deleteCard, getAllCards, saveCard } from './db'
@@ -104,14 +105,14 @@ export default function App() {
               onClick={() => setView({ name: 'settings' })}
               aria-label="Impostazioni"
             >
-              ⚙
+              <Icon name="settings" />
             </button>
             <button
               className="icon-btn"
               onClick={() => setView({ name: 'form', kind: 'certification' })}
               aria-label="Aggiungi tessera"
             >
-              ＋
+              <Icon name="plus" />
             </button>
           </div>
         </div>
@@ -135,7 +136,9 @@ export default function App() {
 
         {cards.length === 0 && (
           <div className="empty">
-            <div className="empty-glyph">🤿</div>
+            <div className="empty-glyph">
+              <Icon name="card" size={54} weight={1.1} />
+            </div>
             <h2>Nessuna tessera</h2>
             <p>
               Aggiungi i tuoi brevetti subacquei e l’assicurazione DAN per averli

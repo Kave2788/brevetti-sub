@@ -3,6 +3,7 @@ import { defaultAgencyFor } from '../data/agencies'
 import { deletePhoto, newId, savePhoto } from '../db'
 import type { Card, CardKind } from '../types'
 import { usePhotoUrl } from '../utils'
+import { Icon } from './Icon'
 
 interface CardFormProps {
   kind: CardKind
@@ -45,11 +46,14 @@ function PhotoSlot({ photoId, label, onPick, onRemove }: PhotoSlotProps) {
             }}
             aria-label={`Rimuovi ${label}`}
           >
-            ×
+            <Icon name="close" size={15} weight={2} />
           </button>
         </>
       ) : (
-        <span>+ {label}</span>
+        <span className="photo-slot-empty">
+          <Icon name="camera" size={26} weight={1.3} />
+          {label}
+        </span>
       )}
       {/* Niente attributo `capture`: su iOS forzerebbe la fotocamera,
           mentre le foto delle tessere di solito sono gia' in galleria.
